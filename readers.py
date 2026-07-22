@@ -1,4 +1,4 @@
-from models import RamRawData, DiskRawData, NetRawData
+from models import RamMetrics, DiskRawData, NetRawData
 
 
 def read_cpu_stats() -> tuple[int, ...]:
@@ -9,14 +9,14 @@ def read_cpu_stats() -> tuple[int, ...]:
     return tuple(int(i) for i in fields)
 
 
-def read_ram_stats() -> RamRawData:
+def read_ram_stats() -> RamMetrics:
     with open("/proc/meminfo", "r") as f:
         ram_stats = {}
         for line in f:
             key, value = line.strip().split(":")
             ram_stats[key] = int(value.split()[0])
 
-        return RamRawData(
+        return RamMetrics(
             mem_total=ram_stats["MemTotal"],
             mem_available=ram_stats["MemAvailable"],
             swap_total=ram_stats["SwapTotal"],
