@@ -1,7 +1,7 @@
 from typing import NamedTuple
 
 
-class RamRawData(NamedTuple):
+class RamMetrics(NamedTuple):
     """Holds raw data read from /proc/meminfo."""
     mem_total: int
     mem_available: int
