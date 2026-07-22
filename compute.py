@@ -1,7 +1,4 @@
-import subprocess
-import time
 from models import DiskRawData, DiskMetrics, NetRawData, NetMetrics
-from readers import read_disk_stats
 
 
 def compute_cpu_metrics(prev: tuple[int, ...], 
