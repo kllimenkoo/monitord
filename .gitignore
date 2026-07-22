@@ -208,6 +208,9 @@ tempCodeRunnerFile.py
 # Ruff stuff:
 .ruff_cache/
 
+# Pyright stuff:
+pyrightconfig.json
+
 # PyPI configuration file
 .pypirc
 
