@@ -1,7 +1,7 @@
-from models import DiskRawData, DiskMetrics, NetRawData, NetMetrics
+from models import RamRawData, RamMetrics, DiskRawData, DiskMetrics, NetRawData, NetMetrics
 
 
-def compute_cpu_metrics(prev: tuple[int, ...], 
+def compute_cpu_metrics(prev: tuple[int, ...],
                         curr: tuple[int, ...]) -> float:
     prev_idle = prev[3] + prev[4] # idle + iowait
     curr_idle = curr[3] + curr[4]
@@ -17,6 +17,15 @@ def compute_cpu_metrics(prev: tuple[int, ...],
 
     cpu_usage_percent = 100 * (1 - (delta_idle / delta_total))
     return cpu_usage_percent
+
+
+def compute_ram_metrics(snapshot: RamRawData) -> RamMetrics:
+    mem_usage_percentage = 100 * (1 - (snapshot.mem_available / snapshot.mem_total))
+    swap_usage_percentage = 100 * (1 - (snapshot.swap_free / snapshot.swap_total))
+    return RamMetrics(
+        mem_usage_percentage=mem_usage_percentage,
+        swap_usage_percentage=swap_usage_percentage,
+    )
 
 
 def compute_disk_metrics(prev: dict[str, DiskRawData],
