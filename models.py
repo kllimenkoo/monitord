@@ -1,12 +1,18 @@
 from typing import NamedTuple
 
 
-class RamMetrics(NamedTuple):
+class RamRawData(NamedTuple):
     """Holds raw data read from /proc/meminfo."""
     mem_total: int
     mem_available: int
     swap_total: int
     swap_free: int
+
+
+class RamMetrics(NamedTuple):
+    """Holds calculated data from RAM."""
+    mem_usage_percentage: float
+    swap_usage_percentage: float
 
 
 class DiskRawData(NamedTuple):
