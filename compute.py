@@ -21,7 +21,12 @@ def compute_cpu_metrics(prev: tuple[int, ...],
 
 def compute_ram_metrics(snapshot: RamRawData) -> RamMetrics:
     mem_usage_percentage = 100 * (1 - (snapshot.mem_available / snapshot.mem_total))
-    swap_usage_percentage = 100 * (1 - (snapshot.swap_free / snapshot.swap_total))
+
+    if snapshot.swap_total > 0:
+        swap_usage_percentage = 100 * (1 - (snapshot.swap_free / snapshot.swap_total))
+    else:
+        swap_usage_percentage = 0.0
+
     return RamMetrics(
         mem_usage_percentage=mem_usage_percentage,
         swap_usage_percentage=swap_usage_percentage,
