@@ -2,7 +2,7 @@ from models import RamRawData, RamMetrics, DiskRawData, DiskMetrics, NetRawData,
 
 
 def compute_cpu_metrics(prev: tuple[int, ...],
-                        curr: tuple[int, ...]) -> float:
+                        curr: tuple[int, ...]) -> float | None:
     prev_idle = prev[3] + prev[4] # idle + iowait
     curr_idle = curr[3] + curr[4]
 
@@ -13,13 +13,16 @@ def compute_cpu_metrics(prev: tuple[int, ...],
     delta_total = curr_total - prev_total
 
     if delta_total == 0:
-        return 0.0
+        return None
 
     cpu_usage_percent = 100 * (1 - (delta_idle / delta_total))
     return cpu_usage_percent
 
 
 def compute_ram_metrics(snapshot: RamRawData) -> RamMetrics:
+    if snapshot.mem_total == 0:
+        raise ValueError('mem_total is 0 - /proc/meminfo may be corrupted.')
+
     mem_usage_percentage = 100 * (1 - (snapshot.mem_available / snapshot.mem_total))
 
     if snapshot.swap_total > 0:
@@ -75,6 +78,9 @@ def compute_net_metrics(prev: dict[str, NetRawData],
     result = {}
     for name, curr_stats in curr.items():
         if name not in prev:
+            continue
+
+        if interval == 0:
             continue
 
         prev_stats = prev[name]
