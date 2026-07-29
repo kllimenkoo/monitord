@@ -63,7 +63,7 @@ async def init_db() -> None:
         await db.execute(sql)
 
 
-async def write_cpu(usage_percentage: float) -> None:
+async def write_cpu(usage_percentage: float | None) -> None:
     db = await get_db()
     await db.execute(
         'INSERT INTO cpu_metrics VALUES (?, ?)',
