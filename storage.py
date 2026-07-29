@@ -132,7 +132,7 @@ async def read_disk_recent(device: str, limit: int) -> list[tuple[float]]:
     async with db.execute(
         """
         SELECT io_utilization_percent FROM disk_metrics
-        WHERE dev_name = ? ORDER BY timestamp DESC LIMIT ?
+        WHERE device = ? ORDER BY timestamp DESC LIMIT ?
         """,
         (device, limit)
     ) as cursor:
@@ -145,7 +145,7 @@ async def read_net_recent(interface: str, limit: int) -> list[tuple[float, float
     async with db.execute(
         """
         SELECT receive_bytes_per_sec, transmit_bytes_per_sec FROM net_metrics
-        WHERE intf_name = ? ORDER BY timestamp DESC LIMIT ?
+        WHERE interface = ? ORDER BY timestamp DESC LIMIT ?
         """,
         (interface, limit)
     ) as cursor:
