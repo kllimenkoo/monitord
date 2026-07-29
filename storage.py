@@ -81,20 +81,20 @@ async def write_ram(metrics: RamMetrics) -> None:
 
 async def write_disk(metrics: dict[str, DiskMetrics]) -> None:
     db = await get_db()
-    for dev_name, dev_metrics in metrics.items():
+    for device, dev_metrics in metrics.items():
         await db.execute(
             'INSERT INTO disk_metrics VALUES (?, ?, ?, ?, ?, ?, ?)',
-            (time.time(), dev_name, dev_metrics.read_iops, dev_metrics.read_bytes_per_sec,
+            (time.time(), device, dev_metrics.read_iops, dev_metrics.read_bytes_per_sec,
             dev_metrics.write_iops, dev_metrics.write_bytes_per_sec, dev_metrics.io_utilization_percent)
         )
 
 
 async def write_net(metrics: dict[str, NetMetrics]) -> None:
     db = await get_db()
-    for intf_name, intf_metrics in metrics.items():
+    for interface, intf_metrics in metrics.items():
         await db.execute(
             'INSERT INTO net_metrics VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
-            (time.time(), intf_name, intf_metrics.receive_bytes_per_sec, intf_metrics.receive_packets_per_sec,
+            (time.time(), interface, intf_metrics.receive_bytes_per_sec, intf_metrics.receive_packets_per_sec,
             intf_metrics.transmit_bytes_per_sec, intf_metrics.transmit_packets_per_sec,
             intf_metrics.receive_packet_error_count, intf_metrics.receive_packet_drop_count,
             intf_metrics.transmit_packet_error_count, intf_metrics.transmit_packet_drop_count)
@@ -140,14 +140,14 @@ async def read_disk_recent(device: str, limit: int) -> list[tuple[float]]:
     return result # type: ignore
 
 
-async def read_net_recent(intf: str, limit: int) -> list[tuple[float, float]]:
+async def read_net_recent(interface: str, limit: int) -> list[tuple[float, float]]:
     db = await get_db()
     async with db.execute(
         """
         SELECT receive_bytes_per_sec, transmit_bytes_per_sec FROM net_metrics
         WHERE intf_name = ? ORDER BY timestamp DESC LIMIT ?
         """,
-        (intf, limit)
+        (interface, limit)
     ) as cursor:
        result = await cursor.fetchall()
     return result # type: ignore
