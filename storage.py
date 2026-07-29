@@ -151,3 +151,21 @@ async def read_net_recent(interface: str, limit: int) -> list[tuple[float, float
     ) as cursor:
        result = await cursor.fetchall()
     return result # type: ignore
+
+
+async def get_known_devices() -> list[str]:
+    db = await get_db()
+    async with db.execute(
+        'SELECT DISTINCT device FROM disk_metrics'
+    ) as cursor:
+        result = await cursor.fetchall()
+    return [device for (device,) in result]
+
+
+async def get_known_interfaces() -> list[str]:
+    db = await get_db()
+    async with db.execute(
+        'SELECT DISTINCT interface FROM net_metrics'
+    ) as cursor:
+        result = await cursor.fetchall()
+    return [interface for (interface,) in result]
