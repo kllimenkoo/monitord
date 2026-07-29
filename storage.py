@@ -23,7 +23,7 @@ tables: tuple = (
     """
     CREATE TABLE IF NOT EXISTS disk_metrics(
         timestamp REAL,
-        dev_name TEXT,
+        device TEXT,
         read_iops REAL,
         read_bytes_per_sec REAL,
         write_iops REAL,
@@ -34,7 +34,7 @@ tables: tuple = (
     """
     CREATE TABLE IF NOT EXISTS net_metrics(
         timestamp REAL,
-        intf_name TEXT,
+        interface TEXT,
         receive_bytes_per_sec REAL,
         receive_packets_per_sec REAL,
         transmit_bytes_per_sec REAL,
