@@ -55,3 +55,24 @@ async def check_disk(threshold: float) -> None:
         if avg_io_utilization_short > avg_io_utilization_long * threshold:
             print('Something is wrong: disk is doing too much work.')
 
+
+async def check_net(threshold: tuple[float, float]) -> None:
+    interfaces = await get_known_interfaces()
+    for interface in interfaces:
+        long_window = await read_net_recent(interface=interface, limit=NET_LONG_WINDOW)
+        if len(long_window) < NET_LONG_WINDOW:
+            continue
+
+        short_window = long_window[:NET_SHORT_WINDOW]
+
+        avg_receive_short = sum(row['receive_bytes_per_sec'] for row in short_window) / NET_SHORT_WINDOW
+        avg_transmit_short = sum(row['transmit_bytes_per_sec'] for row in short_window) / NET_SHORT_WINDOW
+
+        avg_receive_long = sum(row['receive_bytes_per_sec'] for row in long_window) / NET_LONG_WINDOW
+        avg_transmit_long = sum(row['transmit_bytes_per_sec'] for row in long_window) / NET_LONG_WINDOW
+
+        if avg_receive_short > avg_receive_long * threshold[0]:
+            print('Something is wrong: we receive too much.')
+
+        if avg_transmit_short > avg_transmit_long * threshold[1]:
+            print('Something is wrong: we send too much.')
