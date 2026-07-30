@@ -102,11 +102,11 @@ async def write_net(metrics: dict[str, NetMetrics]) -> None:
         )
 
 
-async def read_cpu_recent(limit: int) -> list[tuple[float]]:
+async def read_cpu_recent(limit: int) -> list[aiosqlite.Row]:
     db = await get_db()
     async with db.execute(
         """
-        SELECT usage_percentage FROM cpu_metrics 
+        SELECT usage_percentage FROM cpu_metrics
         ORDER BY timestamp DESC LIMIT ?
         """,
         (limit,)
@@ -115,7 +115,7 @@ async def read_cpu_recent(limit: int) -> list[tuple[float]]:
     return result # type: ignore
 
 
-async def read_ram_recent(limit: int) -> list[tuple[float, float]]:
+async def read_ram_recent(limit: int) -> list[aiosqlite.Row]:
     db = await get_db()
     async with db.execute(
         """
@@ -128,7 +128,7 @@ async def read_ram_recent(limit: int) -> list[tuple[float, float]]:
     return result # type: ignore
 
 
-async def read_disk_recent(device: str, limit: int) -> list[tuple[float]]:
+async def read_disk_recent(device: str, limit: int) -> list[aiosqlite.Row]:
     db = await get_db()
     async with db.execute(
         """
@@ -141,7 +141,7 @@ async def read_disk_recent(device: str, limit: int) -> list[tuple[float]]:
     return result # type: ignore
 
 
-async def read_net_recent(interface: str, limit: int) -> list[tuple[float, float]]:
+async def read_net_recent(interface: str, limit: int) -> list[aiosqlite.Row]:
     db = await get_db()
     async with db.execute(
         """
