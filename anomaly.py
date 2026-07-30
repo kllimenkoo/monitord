@@ -19,3 +19,23 @@ async def check_cpu(threshold: float) -> None:
     if avg_cpu_usage_short > avg_cpu_usage_long * threshold:
         print('Something is wrong: CPU is doing heavy lifting.')
 
+
+async def check_ram(threshold: float) -> None:
+    long_window = await read_ram_recent(limit=RAM_LONG_WINDOW)
+    if len(long_window) < RAM_LONG_WINDOW:
+        return None
+
+    short_window = long_window[:RAM_SHORT_WINDOW]
+
+    avg_mem_usage_short = sum(metric['mem_usage_percentage'] for metric in short_window) / RAM_SHORT_WINDOW
+    avg_mem_usage_long = sum(metric['mem_usage_percentage'] for metric in long_window) / RAM_LONG_WINDOW
+
+    avg_swap_usage_short = sum(metric['swap_usage_percentage'] for metric in short_window) / RAM_SHORT_WINDOW
+    avg_swap_usage_long = sum(metric['swap_usage_percentage'] for metric in long_window) / RAM_LONG_WINDOW
+
+    if avg_mem_usage_short > avg_mem_usage_long * threshold:
+        print('Something is wrong: RAM is doing heavy lifting.')
+
+    if avg_swap_usage_short > avg_swap_usage_long * threshold:
+        print('Something is wrong: swap is doing heavy lifting.')
+
