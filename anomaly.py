@@ -39,3 +39,19 @@ async def check_ram(threshold: float) -> None:
     if avg_swap_usage_short > avg_swap_usage_long * threshold:
         print('Something is wrong: swap is doing heavy lifting.')
 
+
+async def check_disk(threshold: float) -> None:
+    devices = await get_known_devices()
+    for device in devices:
+        long_window = await read_disk_recent(device=device, limit=DISK_LONG_WINDOW)
+        if len(long_window) < DISK_LONG_WINDOW:
+            continue
+
+        short_window = long_window[:DISK_SHORT_WINDOW]
+
+        avg_io_utilization_short = sum(row['io_utilization_percentage'] for row in short_window) / DISK_SHORT_WINDOW
+        avg_io_utilization_long = sum(row['io_utilization_percentage'] for row in long_window) / DISK_LONG_WINDOW
+
+        if avg_io_utilization_short > avg_io_utilization_long * threshold:
+            print('Something is wrong: disk is doing too much work.')
+
