@@ -39,4 +39,13 @@ async def disk_collector() -> None:
         prev = curr
 
 
+async def net_collector() -> None:
+    prev = read_net_stats()
+
+    while True:
+        await asyncio.sleep(INTERVAL)
+        curr = read_net_stats()
+        metrics = compute_net_metrics(prev, curr, INTERVAL)
+        await write_net(metrics)
+        prev = curr
 
