@@ -1,5 +1,6 @@
 import asyncio
 
+from anomaly import run_anomaly_checks
 from readers import read_cpu_stats, read_disk_stats, read_ram_stats, read_net_stats
 from compute import compute_cpu_metrics, compute_disk_metrics, compute_net_metrics, compute_ram_metrics
 from storage import init_db, write_cpu, write_ram, write_disk, write_net
@@ -49,3 +50,16 @@ async def net_collector() -> None:
         await write_net(metrics)
         prev = curr
 
+
+async def main():
+    await init_db()
+    async with asyncio.TaskGroup() as tg:
+        tg.create_task(cpu_collector())
+        tg.create_task(ram_collector())
+        tg.create_task(disk_collector())
+        tg.create_task(net_collector())
+        tg.create_task(run_anomaly_checks())
+
+
+if __name__ == '__main__':
+    asyncio.run(main())
