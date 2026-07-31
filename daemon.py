@@ -20,3 +20,10 @@ async def cpu_collector() -> None:
         prev = curr
 
 
+async def ram_collector() -> None:
+    while True:
+        await asyncio.sleep(INTERVAL)
+        snapshot = read_ram_stats()
+        metrics = compute_ram_metrics(snapshot)
+        await write_ram(metrics)
+
