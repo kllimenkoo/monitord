@@ -85,7 +85,7 @@ async def check_net(threshold: tuple[float, float]) -> None:
             print('Something is wrong: we send too much.')
 
 
-async def run_checks() -> None:
+async def run_anomaly_checks() -> None:
     async with asyncio.TaskGroup() as tg:
         tg.create_task(check_cpu(CPU_THRESHOLD))
         tg.create_task(check_ram(RAM_THRESHOLD))
