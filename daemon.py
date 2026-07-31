@@ -27,3 +27,16 @@ async def ram_collector() -> None:
         metrics = compute_ram_metrics(snapshot)
         await write_ram(metrics)
 
+
+async def disk_collector() -> None:
+    prev = read_disk_stats()
+
+    while True:
+        await asyncio.sleep(INTERVAL)
+        curr = read_disk_stats()
+        metrics = compute_disk_metrics(prev, curr, INTERVAL)
+        await write_disk(metrics)
+        prev = curr
+
+
+
