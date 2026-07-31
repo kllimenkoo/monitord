@@ -1,9 +1,16 @@
+import asyncio
+
 from storage import get_known_devices, get_known_interfaces, read_cpu_recent, read_disk_recent, read_net_recent, read_ram_recent
 
-CPU_SHORT_WINDOW, CPU_LONG_WINDOW = 5, 60
-RAM_SHORT_WINDOW, RAM_LONG_WINDOW = 5, 60
-DISK_SHORT_WINDOW, DISK_LONG_WINDOW = 10, 120
-NET_SHORT_WINDOW, NET_LONG_WINDOW = 8, 90
+CPU_SHORT_WINDOW, CPU_LONG_WINDOW = 5, 20
+RAM_SHORT_WINDOW, RAM_LONG_WINDOW = 5, 20
+DISK_SHORT_WINDOW, DISK_LONG_WINDOW = 10, 20
+NET_SHORT_WINDOW, NET_LONG_WINDOW = 8, 20
+
+CPU_THRESHOLD = 1.5
+RAM_THRESHOLD = 1.5
+DISK_THRESHOLD = 2.0
+NET_THRESHOLD = (2.0, 2.0)
 
 
 async def check_cpu(threshold: float) -> None:
@@ -76,3 +83,12 @@ async def check_net(threshold: tuple[float, float]) -> None:
 
         if avg_transmit_short > avg_transmit_long * threshold[1]:
             print('Something is wrong: we send too much.')
+
+
+async def run_checks() -> None:
+    async with asyncio.TaskGroup() as tg:
+        tg.create_task(check_cpu(CPU_THRESHOLD))
+        tg.create_task(check_ram(RAM_THRESHOLD))
+        tg.create_task(check_disk(DISK_THRESHOLD))
+        tg.create_task(check_net(NET_THRESHOLD))
+
