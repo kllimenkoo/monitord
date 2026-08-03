@@ -86,9 +86,11 @@ async def check_net(threshold: tuple[float, float]) -> None:
 
 
 async def run_anomaly_checks() -> None:
-    async with asyncio.TaskGroup() as tg:
-        tg.create_task(check_cpu(CPU_THRESHOLD))
-        tg.create_task(check_ram(RAM_THRESHOLD))
-        tg.create_task(check_disk(DISK_THRESHOLD))
-        tg.create_task(check_net(NET_THRESHOLD))
+    while True:
+        async with asyncio.TaskGroup() as tg:
+            tg.create_task(check_cpu(CPU_THRESHOLD))
+            tg.create_task(check_ram(RAM_THRESHOLD))
+            tg.create_task(check_disk(DISK_THRESHOLD))
+            tg.create_task(check_net(NET_THRESHOLD))
+        await asyncio.sleep(30)
 
