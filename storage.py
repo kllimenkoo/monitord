@@ -149,7 +149,7 @@ async def read_disk_recent(device: str, limit: int) -> list[aiosqlite.Row]:
         SELECT timestamp, device, read_iops,
         read_bytes_per_sec, write_iops, write_bytes_per_sec,
         io_utilization_percentage
-        FROM disk_metrics
+        FROM disk_metrics 
         WHERE device = ? ORDER BY timestamp DESC LIMIT ?
         """,
         (device, limit),
