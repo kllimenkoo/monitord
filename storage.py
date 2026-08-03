@@ -12,14 +12,14 @@ tables: tuple = (
         timestamp REAL,
         usage_percentage REAL
     )
-    """,
+    """.strip(),
     """
     CREATE TABLE IF NOT EXISTS ram_metrics(
         timestamp REAL,
         mem_usage_percentage REAL,
         swap_usage_percentage REAL
     )
-    """,
+    """.strip(),
     """
     CREATE TABLE IF NOT EXISTS disk_metrics(
         timestamp REAL,
@@ -30,7 +30,7 @@ tables: tuple = (
         write_bytes_per_sec REAL,
         io_utilization_percentage REAL
     )
-    """,
+    """.strip(),
     """
     CREATE TABLE IF NOT EXISTS net_metrics(
         timestamp REAL,
@@ -44,7 +44,7 @@ tables: tuple = (
         transmit_packet_error_count REAL,
         transmit_packet_drop_count REAL
     )
-    """
+    """.strip()
 )
 
 
