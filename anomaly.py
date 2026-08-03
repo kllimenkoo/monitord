@@ -60,7 +60,7 @@ async def check_disk(threshold: float) -> None:
         avg_io_utilization_long = sum(row['io_utilization_percentage'] for row in long_window) / DISK_LONG_WINDOW
 
         if avg_io_utilization_short > avg_io_utilization_long * threshold:
-            print('Something is wrong: disk is doing too much work.')
+            print(f'Something is wrong: disk {device} is doing too much work.')
 
 
 async def check_net(threshold: tuple[float, float]) -> None:
@@ -79,10 +79,10 @@ async def check_net(threshold: tuple[float, float]) -> None:
         avg_transmit_long = sum(row['transmit_bytes_per_sec'] for row in long_window) / NET_LONG_WINDOW
 
         if avg_receive_short > avg_receive_long * threshold[0]:
-            print('Something is wrong: we receive too much.')
+            print(f'Something is wrong: big amount of data received over the {interface} interface.')
 
         if avg_transmit_short > avg_transmit_long * threshold[1]:
-            print('Something is wrong: we send too much.')
+            print(f'Something is wrong: big amount of data sent over the {interface} interface.')
 
 
 async def run_anomaly_checks() -> None:
