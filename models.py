@@ -30,7 +30,7 @@ class DiskMetrics(NamedTuple):
     read_bytes_per_sec: float
     write_iops: float
     write_bytes_per_sec: float
-    io_utilization_percent: float
+    io_utilization_percentage: float
 
 
 class NetRawData(NamedTuple):

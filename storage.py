@@ -28,7 +28,7 @@ tables: tuple = (
         read_bytes_per_sec REAL,
         write_iops REAL,
         write_bytes_per_sec REAL,
-        io_utilization_percent REAL
+        io_utilization_percentage REAL
     )
     """,
     """
@@ -86,7 +86,7 @@ async def write_disk(metrics: dict[str, DiskMetrics]) -> None:
         await db.execute(
             'INSERT INTO disk_metrics VALUES (?, ?, ?, ?, ?, ?, ?)',
             (time.time(), device, dev_metrics.read_iops, dev_metrics.read_bytes_per_sec,
-            dev_metrics.write_iops, dev_metrics.write_bytes_per_sec, dev_metrics.io_utilization_percent)
+            dev_metrics.write_iops, dev_metrics.write_bytes_per_sec, dev_metrics.io_utilization_percentage)
         )
 
 
@@ -132,7 +132,7 @@ async def read_disk_recent(device: str, limit: int) -> list[aiosqlite.Row]:
     db = await get_db()
     async with db.execute(
         """
-        SELECT io_utilization_percent FROM disk_metrics
+        SELECT io_utilization_percentage FROM disk_metrics
         WHERE device = ? ORDER BY timestamp DESC LIMIT ?
         """,
         (device, limit)
