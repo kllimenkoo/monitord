@@ -91,7 +91,7 @@ async def write_disk(metrics: dict[str, DiskMetrics]) -> None:
                 dev_metrics.read_bytes_per_sec,
                 dev_metrics.write_iops,
                 dev_metrics.write_bytes_per_sec,
-                dev_metrics.io_utilization_percent,
+                dev_metrics.io_utilization_percentage,
             ),
         )
 
