@@ -120,7 +120,7 @@ async def read_cpu_recent(limit: int) -> list[aiosqlite.Row]:
     db = await get_db()
     async with db.execute(
         """
-        SELECT usage_percentage FROM cpu_metrics
+        SELECT timestamp, usage_percentage FROM cpu_metrics
         ORDER BY timestamp DESC LIMIT ?
         """,
         (limit,),
@@ -133,7 +133,7 @@ async def read_ram_recent(limit: int) -> list[aiosqlite.Row]:
     db = await get_db()
     async with db.execute(
         """
-        SELECT mem_usage_percentage, swap_usage_percentage
+        SELECT timestamp, mem_usage_percentage, swap_usage_percentage
         FROM ram_metrics ORDER BY timestamp DESC LIMIT ?
         """,
         (limit,),
@@ -146,7 +146,10 @@ async def read_disk_recent(device: str, limit: int) -> list[aiosqlite.Row]:
     db = await get_db()
     async with db.execute(
         """
-        SELECT io_utilization_percentage FROM disk_metrics
+        SELECT timestamp, device, read_iops,
+        read_bytes_per_sec, write_iops, write_bytes_per_sec,
+        io_utilization_percentage
+        FROM disk_metrics
         WHERE device = ? ORDER BY timestamp DESC LIMIT ?
         """,
         (device, limit),
@@ -159,7 +162,12 @@ async def read_net_recent(interface: str, limit: int) -> list[aiosqlite.Row]:
     db = await get_db()
     async with db.execute(
         """
-        SELECT receive_bytes_per_sec, transmit_bytes_per_sec FROM net_metrics
+        SELECT timestamp, interface,
+        receive_bytes_per_sec, receive_packets_per_sec,
+        transmit_bytes_per_sec, transmit_packets_per_sec,
+        receive_packet_error_count, receive_packet_drop_count,
+        transmit_packet_error_count, transmit_packet_drop_count
+        FROM net_metrics
         WHERE interface = ? ORDER BY timestamp DESC LIMIT ?
         """,
         (interface, limit),
