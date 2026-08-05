@@ -34,3 +34,20 @@ async def get_disk(device: str) -> list[DiskResponse]:
         write_bytes_per_sec=row['write_bytes_per_sec'],
         io_utilization_percentage=row['io_utilization_percentage']) for row in rows]
     return result
+
+
+@app.get('/net/{interface}')
+async def get_interface(interface: str) -> list[NetResponse]:
+    rows = await read_net_recent(interface=interface, limit=60)
+    result = [NetResponse(
+        timestamp=row['timestamp'],
+        interface=row['interface'],
+        receive_bytes_per_sec=row['receive_bytes_per_sec'],
+        receive_packets_per_sec=row['receive_packets_per_sec'],
+        transmit_bytes_per_sec=row['transmit_bytes_per_sec'],
+        transmit_packets_per_sec=row['transmit_packets_per_sec'],
+        receive_packet_error_count=row['receive_packet_error_count'],
+        receive_packet_drop_count=row['receive_packet_drop_count'],
+        transmit_packet_error_count=row['transmit_packet_error_count'],
+        transmit_packet_drop_count=row['transmit_packet_drop_count']) for row in rows]
+    return result
