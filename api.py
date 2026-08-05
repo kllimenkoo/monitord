@@ -20,3 +20,17 @@ async def get_ram() -> list[RamResponse]:
         mem_usage_percentage=row['mem_usage_percentage'],
         swap_usage_percentage=row['swap_usage_percentage']) for row in rows]
     return result
+
+
+@app.get('/disk/{device}')
+async def get_disk(device: str) -> list[DiskResponse]:
+    rows = await read_disk_recent(device=device, limit=60)
+    result = [DiskResponse(
+        timestamp=row['timestamp'],
+        device=row['device'],
+        read_iops=row['read_iops'],
+        read_bytes_per_sec=row['read_bytes_per_sec'],
+        write_iops=row['write_iops'],
+        write_bytes_per_sec=row['write_bytes_per_sec'],
+        io_utilization_percentage=row['io_utilization_percentage']) for row in rows]
+    return result
