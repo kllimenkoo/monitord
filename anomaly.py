@@ -1,31 +1,39 @@
 import asyncio
+import statistics
 
 from storage import get_known_devices, get_known_interfaces, read_cpu_recent, read_disk_recent, read_net_recent, read_ram_recent
 
 CPU_SHORT_WINDOW, CPU_LONG_WINDOW = 5, 20
+CPU_SENSITIVITY = 2.0
+CPU_STDEV_FLOOR = 0.5
+
 RAM_SHORT_WINDOW, RAM_LONG_WINDOW = 5, 20
 DISK_SHORT_WINDOW, DISK_LONG_WINDOW = 10, 20
 NET_SHORT_WINDOW, NET_LONG_WINDOW = 8, 20
 
-CPU_THRESHOLD = 1.5
 RAM_THRESHOLD = 1.5
 DISK_THRESHOLD = 2.0
 NET_THRESHOLD = (2.0, 2.0)
 
 
-async def check_cpu(threshold: float) -> None:
+async def check_cpu() -> None:
     long_window = await read_cpu_recent(limit=CPU_LONG_WINDOW)
     if len(long_window) < CPU_LONG_WINDOW:
         return None
 
     short_window = long_window[:CPU_SHORT_WINDOW]
 
-    avg_cpu_usage_short = sum(metric['usage_percentage'] for metric in short_window) / CPU_SHORT_WINDOW
-    avg_cpu_usage_long = sum(metric['usage_percentage'] for metric in long_window) / CPU_LONG_WINDOW
+    long_window_values = [metric['usage_percentage'] for metric in long_window]
+    short_window_values = [metric['usage_percentage'] for metric in short_window]
 
-    if avg_cpu_usage_short > avg_cpu_usage_long * threshold:
+    avg_long_window = sum(long_window_values) / len(long_window)
+    avg_short_window = sum(short_window_values) / len(short_window)
+
+    long_window_stdev = max(statistics.stdev(long_window_values), CPU_STDEV_FLOOR)
+    adaptive_threshold = avg_long_window + (CPU_SENSITIVITY * long_window_stdev)
+
+    if avg_short_window > adaptive_threshold:
         print('Something is wrong: CPU is doing heavy lifting.')
-
 
 async def check_ram(threshold: float) -> None:
     long_window = await read_ram_recent(limit=RAM_LONG_WINDOW)
@@ -88,9 +96,8 @@ async def check_net(threshold: tuple[float, float]) -> None:
 async def run_anomaly_checks() -> None:
     while True:
         async with asyncio.TaskGroup() as tg:
-            tg.create_task(check_cpu(CPU_THRESHOLD))
+            tg.create_task(check_cpu())
             tg.create_task(check_ram(RAM_THRESHOLD))
             tg.create_task(check_disk(DISK_THRESHOLD))
             tg.create_task(check_net(NET_THRESHOLD))
         await asyncio.sleep(30)
-
