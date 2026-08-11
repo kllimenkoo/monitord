@@ -217,6 +217,7 @@ async def check_net() -> None:
                 threshold=adaptive_threshold_transmit,
             )
 
+
 async def run_anomaly_checks() -> None:
     while True:
         async with asyncio.TaskGroup() as tg:
