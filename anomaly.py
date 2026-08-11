@@ -8,6 +8,9 @@ CPU_SENSITIVITY = 2.0
 CPU_STDEV_FLOOR = 0.5
 
 RAM_SHORT_WINDOW, RAM_LONG_WINDOW = 5, 20
+RAM_SENSITIVITY = 2.0
+RAM_STDEV_FLOOR = 0.5
+
 DISK_SHORT_WINDOW, DISK_LONG_WINDOW = 10, 20
 NET_SHORT_WINDOW, NET_LONG_WINDOW = 8, 20
 
@@ -35,27 +38,40 @@ async def check_cpu() -> None:
     if avg_short_window > adaptive_threshold:
         print('Something is wrong: CPU is doing heavy lifting.')
 
-async def check_ram(threshold: float) -> None:
+
+async def check_ram() -> None:
     long_window = await read_ram_recent(limit=RAM_LONG_WINDOW)
     if len(long_window) < RAM_LONG_WINDOW:
         return None
 
     short_window = long_window[:RAM_SHORT_WINDOW]
 
-    avg_mem_usage_short = sum(metric['mem_usage_percentage'] for metric in short_window) / RAM_SHORT_WINDOW
-    avg_mem_usage_long = sum(metric['mem_usage_percentage'] for metric in long_window) / RAM_LONG_WINDOW
+    long_window_values_ram = [metric['mem_usage_percentage'] for metric in long_window]
+    short_window_values_ram = [metric['mem_usage_percentage'] for metric in short_window]
 
-    avg_swap_usage_short = sum(metric['swap_usage_percentage'] for metric in short_window) / RAM_SHORT_WINDOW
-    avg_swap_usage_long = sum(metric['swap_usage_percentage'] for metric in long_window) / RAM_LONG_WINDOW
+    avg_long_window_ram = sum(long_window_values_ram) / len(long_window)
+    avg_short_window_ram = sum(short_window_values_ram) / len(short_window)
 
-    if avg_mem_usage_short > avg_mem_usage_long * threshold:
+    long_window_stdev_ram = max(statistics.stdev(long_window_values_ram), RAM_STDEV_FLOOR)
+    adaptive_threshold_ram = avg_long_window_ram + (RAM_SENSITIVITY * long_window_stdev_ram)
+
+    long_window_values_swap = [metric['swap_usage_percentage'] for metric in long_window]
+    short_window_values_swap = [metric['swap_usage_percentage'] for metric in short_window]
+
+    avg_long_window_swap = sum(long_window_values_swap) / len(long_window)
+    avg_short_window_swap = sum(short_window_values_swap) / len(short_window)
+
+    long_window_stdev_swap = max(statistics.stdev(long_window_values_swap), RAM_SENSITIVITY)
+    adaptive_threshold_swap = avg_long_window_swap + (RAM_SENSITIVITY * long_window_stdev_swap)
+
+    if avg_short_window_ram > adaptive_threshold_ram:
         print('Something is wrong: RAM is doing heavy lifting.')
 
-    if avg_swap_usage_short > avg_swap_usage_long * threshold:
+    if avg_short_window_swap > adaptive_threshold_swap:
         print('Something is wrong: swap is doing heavy lifting.')
 
 
-async def check_disk(threshold: float) -> None:
+async def check_disk() -> None:
     devices = await get_known_devices()
     for device in devices:
         long_window = await read_disk_recent(device=device, limit=DISK_LONG_WINDOW)
