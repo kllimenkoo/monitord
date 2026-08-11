@@ -12,7 +12,9 @@ RAM_SENSITIVITY = 2.0
 RAM_STDEV_FLOOR = 0.5
 
 DISK_SHORT_WINDOW, DISK_LONG_WINDOW = 10, 20
-NET_SHORT_WINDOW, NET_LONG_WINDOW = 8, 20
+DISK_SENSITIVITY = 2.0
+DISK_STDEV_FLOOR = 0.5
+
 
 RAM_THRESHOLD = 1.5
 DISK_THRESHOLD = 2.0
@@ -80,12 +82,17 @@ async def check_disk() -> None:
 
         short_window = long_window[:DISK_SHORT_WINDOW]
 
-        avg_io_utilization_short = sum(row['io_utilization_percentage'] for row in short_window) / DISK_SHORT_WINDOW
-        avg_io_utilization_long = sum(row['io_utilization_percentage'] for row in long_window) / DISK_LONG_WINDOW
+        long_window_values = [row['io_utilization_percentage'] for row in long_window]
+        short_window_values = [row['io_utilization_percentage'] for row in short_window]
 
-        if avg_io_utilization_short > avg_io_utilization_long * threshold:
-            print('Something is wrong: disk is doing too much work.')
+        avg_long_window = sum(long_window_values) / len(long_window)
+        avg_short_window = sum(short_window_values) / len(short_window)
 
+        long_window_stdev = max(statistics.stdev(long_window_values), DISK_STDEV_FLOOR)
+        adaptive_threshold = avg_long_window + (DISK_SENSITIVITY * long_window_stdev)
+
+        if avg_short_window > adaptive_threshold:
+            print(f'Something is wrong: disk {device} is doing too much work.')
 
 async def check_net(threshold: tuple[float, float]) -> None:
     interfaces = await get_known_interfaces()
