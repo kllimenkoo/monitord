@@ -16,9 +16,9 @@ DISK_SENSITIVITY = 2.0
 DISK_STDEV_FLOOR = 0.5
 
 
-RAM_THRESHOLD = 1.5
-DISK_THRESHOLD = 2.0
-NET_THRESHOLD = (2.0, 2.0)
+NET_SHORT_WINDOW, NET_LONG_WINDOW = 8, 20
+NET_SENSITIVITY = 2.0
+NET_STDEV_FLOOR = 0.5
 
 
 async def check_cpu() -> None:
@@ -85,13 +85,8 @@ async def check_disk() -> None:
         long_window_values = [row['io_utilization_percentage'] for row in long_window]
         short_window_values = [row['io_utilization_percentage'] for row in short_window]
 
-<<<<<<< HEAD
-        if avg_io_utilization_short > avg_io_utilization_long * threshold:
-            print(f'Something is wrong: disk {device} is doing too much work.')
-=======
         avg_long_window = sum(long_window_values) / len(long_window)
         avg_short_window = sum(short_window_values) / len(short_window)
->>>>>>> 15081a4 (refactor: add adaptive threshold to check_disk)
 
         long_window_stdev = max(statistics.stdev(long_window_values), DISK_STDEV_FLOOR)
         adaptive_threshold = avg_long_window + (DISK_SENSITIVITY * long_window_stdev)
@@ -99,7 +94,8 @@ async def check_disk() -> None:
         if avg_short_window > adaptive_threshold:
             print(f'Something is wrong: disk {device} is doing too much work.')
 
-async def check_net(threshold: tuple[float, float]) -> None:
+
+async def check_net() -> None:
     interfaces = await get_known_interfaces()
     for interface in interfaces:
         long_window = await read_net_recent(interface=interface, limit=NET_LONG_WINDOW)
@@ -108,24 +104,35 @@ async def check_net(threshold: tuple[float, float]) -> None:
 
         short_window = long_window[:NET_SHORT_WINDOW]
 
-        avg_receive_short = sum(row['receive_bytes_per_sec'] for row in short_window) / NET_SHORT_WINDOW
-        avg_transmit_short = sum(row['transmit_bytes_per_sec'] for row in short_window) / NET_SHORT_WINDOW
+        long_window_values_receive = [row['receive_bytes_per_sec'] for row in long_window]
+        short_window_values_receive = [row['receive_bytes_per_sec'] for row in short_window]
 
-        avg_receive_long = sum(row['receive_bytes_per_sec'] for row in long_window) / NET_LONG_WINDOW
-        avg_transmit_long = sum(row['transmit_bytes_per_sec'] for row in long_window) / NET_LONG_WINDOW
+        avg_long_window_receive = sum(long_window_values_receive) / len(long_window)
+        avg_short_window_receive = sum(short_window_values_receive) / len(short_window)
 
-        if avg_receive_short > avg_receive_long * threshold[0]:
+        long_window_stdev_receive = max(statistics.stdev(long_window_values_receive), NET_STDEV_FLOOR)
+        adaptive_threshold_receive = avg_long_window_receive + (NET_SENSITIVITY * long_window_stdev_receive)
+
+        long_window_values_transmit = [row['transmit_bytes_per_sec'] for row in long_window]
+        short_window_values_transmit = [row['transmit_bytes_per_sec'] for row in short_window]
+
+        avg_long_window_transmit = sum(long_window_values_transmit) / len(long_window)
+        avg_short_window_transmit = sum(short_window_values_transmit) / len(short_window)
+
+        long_window_stdev_transmit = max(statistics.stdev(long_window_values_transmit), NET_STDEV_FLOOR)
+        adaptive_threshold_transmit = avg_long_window_transmit + (NET_SENSITIVITY * long_window_stdev_transmit)
+
+        if avg_short_window_receive > adaptive_threshold_receive:
             print(f'Something is wrong: big amount of data received over the {interface} interface.')
 
-        if avg_transmit_short > avg_transmit_long * threshold[1]:
+        if avg_short_window_transmit > adaptive_threshold_transmit:
             print(f'Something is wrong: big amount of data sent over the {interface} interface.')
-
 
 async def run_anomaly_checks() -> None:
     while True:
         async with asyncio.TaskGroup() as tg:
             tg.create_task(check_cpu())
-            tg.create_task(check_ram(RAM_THRESHOLD))
-            tg.create_task(check_disk(DISK_THRESHOLD))
-            tg.create_task(check_net(NET_THRESHOLD))
+            tg.create_task(check_ram())
+            tg.create_task(check_disk())
+            tg.create_task(check_net())
         await asyncio.sleep(30)
