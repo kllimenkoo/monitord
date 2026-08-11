@@ -165,6 +165,7 @@ async def check_disk() -> None:
         if avg_short_window > adaptive_threshold:
             print(f'Something is wrong: disk {device} is doing too much work.')
 
+
 async def check_net() -> None:
     interfaces = await get_known_interfaces()
     for interface in interfaces:
@@ -215,7 +216,6 @@ async def check_net() -> None:
                 avg_long=avg_long_transmit,
                 threshold=adaptive_threshold_transmit,
             )
-
 
 async def run_anomaly_checks() -> None:
     while True:
