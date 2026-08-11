@@ -128,10 +128,11 @@ async def check_net() -> None:
         if avg_short_window_transmit > adaptive_threshold_transmit:
             print(f'Something is wrong: big amount of data sent over the {interface} interface.')
 
-async def run_checks() -> None:
-    async with asyncio.TaskGroup() as tg:
-        tg.create_task(check_cpu())
-        tg.create_task(check_ram(RAM_THRESHOLD))
-        tg.create_task(check_disk(DISK_THRESHOLD))
-        tg.create_task(check_net(NET_THRESHOLD))
 
+async def run_anomaly_checks() -> None:
+    while True:
+        async with asyncio.TaskGroup() as tg:
+            tg.create_task(check_cpu())
+            tg.create_task(check_ram())
+            tg.create_task(check_disk())
+            tg.create_task(check_net())
