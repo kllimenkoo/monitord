@@ -128,6 +128,7 @@ async def check_net() -> None:
         if avg_short_window_transmit > adaptive_threshold_transmit:
             print(f'Something is wrong: big amount of data sent over the {interface} interface.')
 
+
 async def run_anomaly_checks() -> None:
     while True:
         async with asyncio.TaskGroup() as tg:
