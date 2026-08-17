@@ -100,11 +100,23 @@ async def check_ram() -> None:
     long_window_stdev_swap = max(statistics.stdev(long_window_values_swap), RAM_SENSITIVITY)
     adaptive_threshold_swap = avg_long_window_swap + (RAM_SENSITIVITY * long_window_stdev_swap)
 
-    if avg_short_window_ram > adaptive_threshold_ram:
-        print('Something is wrong: RAM is doing heavy lifting.')
+    if avg_short_mem > adaptive_threshold_mem:
+        log_anomaly(
+            metric='ram',
+            device=None,
+            avg_short=avg_short_mem,
+            avg_long=avg_long_mem,
+            threshold=adaptive_threshold_mem,
+        )
 
-    if avg_short_window_swap > adaptive_threshold_swap:
-        print('Something is wrong: swap is doing heavy lifting.')
+    if avg_short_swap > adaptive_threshold_swap:
+        log_anomaly(
+            metric='swap',
+            device=None,
+            avg_short=avg_short_swap,
+            avg_long=avg_long_swap,
+            threshold=adaptive_threshold_swap,
+        )
 
 
 async def check_disk() -> None:
