@@ -65,8 +65,14 @@ async def check_cpu() -> None:
     long_window_stdev = max(statistics.stdev(long_window_values), CPU_STDEV_FLOOR)
     adaptive_threshold = avg_long_window + (CPU_SENSITIVITY * long_window_stdev)
 
-    if avg_short_window > adaptive_threshold:
-        print('Something is wrong: CPU is doing heavy lifting.')
+    if avg_short > 0:
+        log_anomaly(
+            metric='cpu',
+            device=None,
+            avg_short=avg_short,
+            avg_long=avg_long,
+            threshold=adaptive_threshold,
+        )
 
 
 async def check_ram() -> None:
