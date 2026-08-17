@@ -137,8 +137,14 @@ async def check_disk() -> None:
         long_window_stdev = max(statistics.stdev(long_window_values), DISK_STDEV_FLOOR)
         adaptive_threshold = avg_long_window + (DISK_SENSITIVITY * long_window_stdev)
 
-        if avg_short_window > adaptive_threshold:
-            print(f'Something is wrong: disk {device} is doing too much work.')
+        if avg_short > adaptive_threshold:
+            log_anomaly(
+                metric='disk',
+                device=device,
+                avg_short=avg_short,
+                avg_long=avg_long,
+                threshold=adaptive_threshold,
+            )
 
 
 async def check_net() -> None:
