@@ -1,4 +1,5 @@
 import asyncio
+import logging
 import statistics
 
 from storage import get_known_devices, get_known_interfaces, read_cpu_recent, read_disk_recent, read_net_recent, read_ram_recent
@@ -19,6 +20,33 @@ DISK_STDEV_FLOOR = 0.5
 NET_SHORT_WINDOW, NET_LONG_WINDOW = 8, 20
 NET_SENSITIVITY = 2.0
 NET_STDEV_FLOOR = 0.5
+
+LOG_DIR = Path('/var/log/monitord')
+LOG_FILE = LOG_DIR / 'anomaly.py'
+
+LOG_DIR.mkdir(parents=True, exist_ok=True)
+
+logger = logging.getLogger(__name__)
+logging.basicConfig(
+    filename=LOG_FILE,
+    encoding='utf-8',
+    level=logging.WARNING,
+    format='%(asctime)s %(message)s',
+    datefmt='%Y-%m-%d %H:%M:%S',
+)
+
+
+def log_anomaly(
+    metric: str,
+    device: str | None,
+    avg_short: float,
+    avg_long: float,
+    threshold: float,
+) -> None:
+    logger.warning(
+        f'ANOMALY {metric.upper()} device={device or "N/A"}'
+        f'short_avg={avg_short:.1f} long_avg={avg_long:.1f} threshold={threshold:.1f}'
+    )
 
 
 async def check_cpu() -> None:
