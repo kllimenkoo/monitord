@@ -174,11 +174,23 @@ async def check_net() -> None:
         long_window_stdev_transmit = max(statistics.stdev(long_window_values_transmit), NET_STDEV_FLOOR)
         adaptive_threshold_transmit = avg_long_window_transmit + (NET_SENSITIVITY * long_window_stdev_transmit)
 
-        if avg_short_window_receive > adaptive_threshold_receive:
-            print(f'Something is wrong: big amount of data received over the {interface} interface.')
+        if avg_short_receive > adaptive_threshold_receive:
+            log_anomaly(
+                metric='network_rx',
+                device=interface,
+                avg_short=avg_short_receive,
+                avg_long=avg_long_receive,
+                threshold=adaptive_threshold_receive,
+            )
 
-        if avg_short_window_transmit > adaptive_threshold_transmit:
-            print(f'Something is wrong: big amount of data sent over the {interface} interface.')
+        if avg_short_transmit > adaptive_threshold_transmit:
+            log_anomaly(
+                metric='network_tx',
+                device=interface,
+                avg_short=avg_short_transmit,
+                avg_long=avg_long_transmit,
+                threshold=adaptive_threshold_transmit,
+            )
 
 
 async def run_anomaly_checks() -> None:
