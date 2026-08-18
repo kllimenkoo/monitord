@@ -25,7 +25,7 @@ async def get_interface_names() -> list[str]:
     return result
 
 
-@app.get('/cpu')
+@app.get('/cpu', response_model=list[CpuResponse])
 async def get_cpu(limit: int = 60) -> list[CpuResponse]:
     rows = await read_cpu_recent(limit=limit)
     result = [
@@ -37,7 +37,7 @@ async def get_cpu(limit: int = 60) -> list[CpuResponse]:
     return result
 
 
-@app.get('/ram')
+@app.get('/ram', response_model=list[RamResponse])
 async def get_ram(limit: int = 60) -> list[RamResponse]:
     rows = await read_ram_recent(limit=limit)
     result = [
@@ -51,7 +51,7 @@ async def get_ram(limit: int = 60) -> list[RamResponse]:
     return result
 
 
-@app.get('/disk/{device}')
+@app.get('/disk/{device}', response_model=list[DiskResponse])
 async def get_disk(device: str, limit: int = 60) -> list[DiskResponse]:
     rows = await read_disk_recent(device=device, limit=limit)
     result = [
@@ -69,7 +69,7 @@ async def get_disk(device: str, limit: int = 60) -> list[DiskResponse]:
     return result
 
 
-@app.get('/net/{interface}')
+@app.get('/net/{interface}', response_model=list[NetResponse])
 async def get_interface(interface: str, limit: int = 60) -> list[NetResponse]:
     rows = await read_net_recent(interface=interface, limit=limit)
     result = [
