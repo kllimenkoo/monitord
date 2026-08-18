@@ -1,7 +1,14 @@
 from fastapi import FastAPI
 
 from schemas import CpuResponse, DiskResponse, NetResponse, RamResponse
-from storage import read_cpu_recent, read_disk_recent, read_net_recent, read_ram_recent
+from storage import (
+    get_known_devices,
+    get_known_interfaces,
+    read_cpu_recent,
+    read_disk_recent,
+    read_net_recent,
+    read_ram_recent,
+)
 
 app = FastAPI()
 
