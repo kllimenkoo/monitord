@@ -29,7 +29,7 @@ NET_SENSITIVITY = 2.0
 NET_STDEV_FLOOR = 0.5
 
 LOG_DIR = Path('/var/log/monitord')
-LOG_FILE = LOG_DIR / 'anomaly.py'
+LOG_FILE = LOG_DIR / 'anomaly.log'
 
 LOG_DIR.mkdir(parents=True, exist_ok=True)
 
