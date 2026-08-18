@@ -59,14 +59,14 @@ def compute_disk_metrics(prev: dict[str, DiskRawData],
         read_bytes_per_sec = (delta_sectors_read * 512) / interval # sector = 512 bytes
         write_iops = delta_writes_completed / interval
         write_bytes_per_sec = (delta_sectors_written * 512) / interval
-        io_utilization_percent = 100 * (delta_io_time / (interval * 1000)) # interval to ms
+        io_utilization_percentage = 100 * (delta_io_time / (interval * 1000)) # interval to ms
 
         result[name] = DiskMetrics(
             read_iops=read_iops,
             read_bytes_per_sec=read_bytes_per_sec,
             write_iops=write_iops,
             write_bytes_per_sec=write_bytes_per_sec,
-            io_utilization_percent=io_utilization_percent,
+            io_utilization_percentage=io_utilization_percentage,
         )
 
     return result

@@ -12,14 +12,14 @@ tables: tuple = (
         timestamp REAL,
         usage_percentage REAL
     )
-    """,
+    """.strip(),
     """
     CREATE TABLE IF NOT EXISTS ram_metrics(
         timestamp REAL,
         mem_usage_percentage REAL,
         swap_usage_percentage REAL
     )
-    """,
+    """.strip(),
     """
     CREATE TABLE IF NOT EXISTS disk_metrics(
         timestamp REAL,
@@ -28,9 +28,9 @@ tables: tuple = (
         read_bytes_per_sec REAL,
         write_iops REAL,
         write_bytes_per_sec REAL,
-        io_utilization_percent REAL
+        io_utilization_percentage REAL
     )
-    """,
+    """.strip(),
     """
     CREATE TABLE IF NOT EXISTS net_metrics(
         timestamp REAL,
@@ -44,7 +44,7 @@ tables: tuple = (
         transmit_packet_error_count REAL,
         transmit_packet_drop_count REAL
     )
-    """,
+    """.strip()
 )
 
 
@@ -91,7 +91,7 @@ async def write_disk(metrics: dict[str, DiskMetrics]) -> None:
                 dev_metrics.read_bytes_per_sec,
                 dev_metrics.write_iops,
                 dev_metrics.write_bytes_per_sec,
-                dev_metrics.io_utilization_percent,
+                dev_metrics.io_utilization_percentage,
             ),
         )
 
@@ -146,7 +146,7 @@ async def read_disk_recent(device: str, limit: int) -> list[aiosqlite.Row]:
     db = await get_db()
     async with db.execute(
         """
-        SELECT io_utilization_percent FROM disk_metrics
+        SELECT io_utilization_percentage FROM disk_metrics
         WHERE device = ? ORDER BY timestamp DESC LIMIT ?
         """,
         (device, limit),

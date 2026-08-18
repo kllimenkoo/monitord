@@ -153,6 +153,18 @@ async def check_disk() -> None:
                 threshold=adaptive_threshold,
             )
 
+        long_window_values = [row['io_utilization_percentage'] for row in long_window]
+        short_window_values = [row['io_utilization_percentage'] for row in short_window]
+
+        avg_long_window = sum(long_window_values) / len(long_window)
+        avg_short_window = sum(short_window_values) / len(short_window)
+
+        long_window_stdev = max(statistics.stdev(long_window_values), DISK_STDEV_FLOOR)
+        adaptive_threshold = avg_long_window + (DISK_SENSITIVITY * long_window_stdev)
+
+        if avg_short_window > adaptive_threshold:
+            print(f'Something is wrong: disk {device} is doing too much work.')
+
 
 async def check_net() -> None:
     interfaces = await get_known_interfaces()
@@ -213,3 +225,4 @@ async def run_anomaly_checks() -> None:
             tg.create_task(check_ram())
             tg.create_task(check_disk())
             tg.create_task(check_net())
+        await asyncio.sleep(30)
