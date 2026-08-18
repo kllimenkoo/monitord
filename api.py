@@ -28,9 +28,12 @@ async def get_interface_names() -> list[str]:
 
 @app.get('/alerts')
 async def get_alerts(limit: int = 60):
-    async with aiofiles.open('/var/log/monitord/anomaly.log') as f:
-        lines = await f.readlines()
-    return {'alerts': lines[-limit:]}
+    try:
+        async with aiofiles.open('/var/log/monitord/anomaly.log') as f:
+            lines = await f.readlines()
+        return {'alerts': lines[-limit:]}
+    except FileNotFoundError:
+        return {'alerts': []}
 
 
 @app.get('/cpu', response_model=list[CpuResponse])
