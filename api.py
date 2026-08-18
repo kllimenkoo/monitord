@@ -5,6 +5,19 @@ from storage import read_cpu_recent, read_disk_recent, read_net_recent, read_ram
 
 app = FastAPI()
 
+
+@app.get('/get_device_names')
+async def get_device_names() -> list[str]:
+    result = await get_known_devices()
+    return result
+
+
+@app.get('/get_interface_names')
+async def get_interface_names() -> list[str]:
+    result = await get_known_interfaces()
+    return result
+
+
 @app.get('/cpu')
 async def get_cpu() -> list[CpuResponse]:
     rows = await read_cpu_recent(limit=60)
