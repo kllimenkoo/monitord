@@ -1,11 +1,10 @@
 import asyncio
-import httpx
 
+import httpx
 from textual import work
 from textual.app import App, ComposeResult
 from textual.containers import Horizontal, Vertical
-from textual.widgets import Header, Footer, ProgressBar, Label
-
+from textual.widgets import Footer, Header, Label, ProgressBar
 
 API_BASE = 'http://localhost:8000'
 
@@ -89,7 +88,6 @@ class MetricApp(App):
                 yield Label('Network Throughput')
         yield Footer()
 
-
     async def on_mount(self) -> None:
         async with httpx.AsyncClient() as client:
             devices_response = await client.get(f'{API_BASE}/get_device_names')
@@ -97,8 +95,12 @@ class MetricApp(App):
 
             disk_container = self.query_one('#disk-container', Vertical)
             for device in devices:
-                await disk_container.mount(Label(f'{device.upper()}', classes='sub-label'))
-                await disk_container.mount(ProgressBar(total=100, id=f'disk-{device}-bar', show_eta=False))
+                await disk_container.mount(
+                    Label(f'{device.upper()}', classes='sub-label')
+                )
+                await disk_container.mount(
+                    ProgressBar(total=100, id=f'disk-{device}-bar', show_eta=False)
+                )
 
             interfaces_response = await client.get(f'{API_BASE}/get_interface_names')
             interfaces = interfaces_response.json()
@@ -106,10 +108,15 @@ class MetricApp(App):
             net_container = self.query_one('#net-container', Vertical)
             for interface in interfaces:
                 await net_container.mount(Label(f'{interface}', classes='sub-label'))
-                await net_container.mount(Label('↓ 0.0 B/s ↑ 0.0 B/s', id=f'net-{interface}-label', classes='sub-label'))
+                await net_container.mount(
+                    Label(
+                        '↓ 0.0 B/s ↑ 0.0 B/s',
+                        id=f'net-{interface}-label',
+                        classes='sub-label',
+                    )
+                )
 
             self.poll_metrics(devices, interfaces)
-
 
     def format_bytes(self, bps: float) -> str:
         if bps >= 1000000:
@@ -118,7 +125,6 @@ class MetricApp(App):
             return f'{bps / 1000:.1f} Kb/s'
         else:
             return f'{bps:.0f} B/s'
-
 
     @work(exclusive=True)
     async def poll_metrics(self, devices: list[str], interfaces: list[str]) -> None:
@@ -129,27 +135,51 @@ class MetricApp(App):
                     cpu_response = await client.get(f'{API_BASE}/cpu?limit=1')
                     ram_response = await client.get(f'{API_BASE}/ram?limit=1')
 
-                    self.query_one('#cpu-bar', ProgressBar).progress = first(cpu_response, 'usage_percentage')
-                    self.query_one('#ram-bar', ProgressBar).progress = first(ram_response, 'mem_usage_percentage')
-                    self.query_one('#swap-bar', ProgressBar).progress = first(ram_response, 'swap_usage_percentage')
+                    cpu_bar = self.query_one('#cpu-bar', ProgressBar)
+                    cpu_bar.progress = first(
+                        cpu_response, 'usage_percentage'
+                    )
+
+                    mem_bar = self.query_one('#ram-bar', ProgressBar)
+                    mem_bar.progress = first(
+                        ram_response, 'mem_usage_percentage'
+                    )
+
+                    swap_bar = self.query_one('#swap-bar', ProgressBar)
+                    swap_bar.progress = first(
+                        ram_response, 'swap_usage_percentage'
+                    )
 
                     for device in devices:
-                        disk_response = await client.get(f'{API_BASE}/disk/{device}?limit=1')
-                        disk_percentage = first(disk_response, 'io_utilization_percentage')
-                        self.query_one(f'#disk-{device}-bar', ProgressBar).progress = disk_percentage
+                        disk_response = await client.get(
+                            f'{API_BASE}/disk/{device}?limit=1'
+                        )
+                        disk_percentage = first(
+                            disk_response, 'io_utilization_percentage'
+                        )
+
+                        disk_bar = self.query_one(f'#disk-{device}-bar', ProgressBar)
+                        disk_bar.progress = disk_percentage
 
                     for interface in interfaces:
-                        net_response = await client.get(f'{API_BASE}/net/{interface}?limit=1')
+                        net_response = await client.get(
+                            f'{API_BASE}/net/{interface}?limit=1'
+                        )
                         receive = first(net_response, 'receive_bytes_per_sec')
                         transmit = first(net_response, 'transmit_bytes_per_sec')
 
-                        self.query_one(f'#net-{interface}-label', Label).update(
-                            f'↓ {self.format_bytes(receive)}   ↑ {self.format_bytes(transmit)}'
+                        interface_label = self.query_one(
+                            f'#net-{interface}-label', Label
+                        )
+                        interface_label.update(
+                            f'↓ {self.format_bytes(receive)}   '
+                            f'↑ {self.format_bytes(transmit)}'
                         )
                 except httpx.RequestError:
                     pass
 
                 await asyncio.sleep(2)
+
 
 if __name__ == '__main__':
     MetricApp().run()
