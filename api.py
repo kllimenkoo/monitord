@@ -1,3 +1,4 @@
+import aiofiles
 from fastapi import FastAPI
 
 from schemas import CpuResponse, DiskResponse, NetResponse, RamResponse
@@ -23,6 +24,13 @@ async def get_device_names() -> list[str]:
 async def get_interface_names() -> list[str]:
     result = await get_known_interfaces()
     return result
+
+
+@app.get('/alerts')
+async def get_alerts(limit: int = 60):
+    async with aiofiles.open('/var/log/monitord/anomaly.log') as f:
+        lines = await f.readlines()
+    return {'alerts': lines[-limit:]}
 
 
 @app.get('/cpu', response_model=list[CpuResponse])
