@@ -4,7 +4,8 @@ import httpx
 from textual import work
 from textual.app import App, ComposeResult
 from textual.containers import Horizontal, Vertical
-from textual.widgets import Footer, Header, Label, ProgressBar
+from textual.screen import ModalScreen
+from textual.widgets import Footer, Header, Label, ProgressBar, RichLog
 
 API_BASE = 'http://localhost:8000'
 
@@ -15,6 +16,30 @@ def first(response: httpx.Response, key: str, default: float = 0.0) -> float:
         return data[0].get(key, default) if data else default
     except Exception:
         return default
+
+
+class AlertScreen(ModalScreen):
+    """Pop up window with alerts."""
+
+    BINDINGS = [('a', 'dismiss', 'Close'), ('escape', 'dismiss', 'Close')]
+
+    def compose(self) -> ComposeResult:
+        with Vertical(id='alerts-container'):
+            yield Label('Anomaly Alerts', id='alerts-title')
+            yield RichLog(auto_scroll=False)
+
+    async def on_mount(self) -> None:
+        log = self.query_one(RichLog)
+        log.scroll_home(animate=False)
+        async with httpx.AsyncClient() as client:
+            response = await client.get(f'{API_BASE}/alerts')
+            alerts = response.json()['alerts']
+            if not alerts:
+                log.write('No alerts yet.')
+                return
+            for line in reversed(alerts):
+                log.write(line)
+
 
 
 class MetricApp(App):
@@ -87,6 +112,9 @@ class MetricApp(App):
             with Vertical(id='net-container', classes='container'):
                 yield Label('Network Throughput')
         yield Footer()
+
+    def action_request_alerts(self) -> None:
+        self.push_screen(AlertScreen())
 
     async def on_mount(self) -> None:
         async with httpx.AsyncClient() as client:
