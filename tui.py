@@ -119,19 +119,13 @@ class MetricApp(App):
                     ram_response = await client.get(f'{API_BASE}/ram?limit=1')
 
                     cpu_bar = self.query_one('#cpu-bar', ProgressBar)
-                    cpu_bar.progress = first(
-                        cpu_response, 'usage_percentage'
-                    )
+                    cpu_bar.progress = first(cpu_response, 'usage_percentage')
 
                     mem_bar = self.query_one('#ram-bar', ProgressBar)
-                    mem_bar.progress = first(
-                        ram_response, 'mem_usage_percentage'
-                    )
+                    mem_bar.progress = first(ram_response, 'mem_usage_percentage')
 
                     swap_bar = self.query_one('#swap-bar', ProgressBar)
-                    swap_bar.progress = first(
-                        ram_response, 'swap_usage_percentage'
-                    )
+                    swap_bar.progress = first(ram_response, 'swap_usage_percentage')
 
                     for device in devices:
                         disk_response = await client.get(
