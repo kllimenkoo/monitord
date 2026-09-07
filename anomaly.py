@@ -51,7 +51,7 @@ def log_anomaly(
     threshold: float,
 ) -> None:
     logger.warning(
-        f'ANOMALY {metric.upper()} device={device or "N/A"}'
+        f'ANOMALY {metric.upper()} device={device or "N/A"} '
         f'short_avg={avg_short:.1f} long_avg={avg_long:.1f} threshold={threshold:.1f}'
     )
 
@@ -72,7 +72,7 @@ async def check_cpu() -> None:
     long_stdev = max(statistics.stdev(long_values), CPU_STDEV_FLOOR)
     adaptive_threshold = avg_long + (CPU_SENSITIVITY * long_stdev)
 
-    if avg_short > 0:
+    if avg_short > adaptive_threshold:
         log_anomaly(
             metric='cpu',
             device=None,
