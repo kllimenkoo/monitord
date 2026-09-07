@@ -43,53 +43,8 @@ class AlertScreen(ModalScreen):
 
 
 class MetricApp(App):
-    CSS = """
-    Screen {
-        background: #0a0a12;
-        text-style: italic;
-        color: #b700ff;
-    }
-
-    Header {
-        background: #520380;
-        color: #C8A2C8;
-    }
-
-    Footer {
-        background: #520380;
-        color: #C8A2C8;
-    }
- 
-    PercentageStatus {
-        color: #C89FE0;
-    }
-
-    Bar > .bar--bar {
-        color: #7A29A8;
-        background: #C89FE0;
-    }
-
-    Bar > .bar--complete {
-        color: $error;
-    }
-
-    .container {
-        margin: 1;
-        padding: 1 1;
-        border: heavy #520380;
-        background: #0f0f1e;
-    }
-
-    .container > Label {
-        color: #C8A2C8;
-    }
-
-    .sub-label {
-        color: #b700ff;
-        text-style: italic;
-        margin-top: 1;
-    }
-    """
+    CSS_PATH = 'tui.tcss'
+    BINDINGS = [('a', 'request_alerts', 'Alerts'), ('q', 'quit', 'quit')]
 
     def compose(self) -> ComposeResult:
         yield Header(show_clock=True)
