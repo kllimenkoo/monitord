@@ -51,7 +51,7 @@ def log_anomaly(
     threshold: float,
 ) -> None:
     logger.warning(
-        f'ANOMALY {metric.upper()} device={device or "N/A"}'
+        f'ANOMALY {metric.upper()} device={device or "N/A"} '
         f'short_avg={avg_short:.1f} long_avg={avg_long:.1f} threshold={threshold:.1f}'
     )
 
