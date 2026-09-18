@@ -31,18 +31,21 @@ class AlertScreen(ModalScreen):
     async def on_mount(self) -> None:
         log = self.query_one(RichLog)
         log.scroll_home(animate=False)
-        async with httpx.AsyncClient() as client:
-            response = await client.get(f'{API_BASE}/alerts')
-            alerts = response.json()['alerts']
-            if not alerts:
-                log.write('No alerts yet.')
-                return
-            for line in reversed(alerts):
-                log.write(line)
+        try:
+            async with httpx.AsyncClient() as client:
+                response = await client.get(f'{API_BASE}/alerts')
+                alerts = response.json()['alerts']
+                if not alerts:
+                    log.write('No alerts yet.')
+                    return
+                for line in reversed(alerts):
+                    log.write(line)
+        except httpx.RequestError:
+            log.write('Cannot reach daemon.')
 
 
-
-class MetricApp(App):
+class MonitordApp(App):
+    TITLE = 'monitord'
     CSS_PATH = 'tui.tcss'
     BINDINGS = [('a', 'request_alerts', 'Alerts'), ('q', 'quit', 'quit')]
 
