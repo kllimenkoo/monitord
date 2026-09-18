@@ -105,15 +105,8 @@ class MonitordApp(App):
             )
         return devices, interfaces
 
-            self.poll_metrics(devices, interfaces)
-
-    def format_bytes(self, bps: float) -> str:
-        if bps >= 1000000:
-            return f'{bps / 1000000:.1f} Mb/s'
-        elif bps >= 1000:
-            return f'{bps / 1000:.1f} Kb/s'
-        else:
-            return f'{bps:.0f} B/s'
+    async def on_mount(self) -> None:
+        self.poll_metrics()
 
     @work(exclusive=True)
     async def poll_metrics(self, devices: list[str], interfaces: list[str]) -> None:
