@@ -174,4 +174,4 @@ class MonitordApp(App):
 
 
 if __name__ == '__main__':
-    MetricApp().run()
+    MonitordApp().run()
