@@ -1,5 +1,8 @@
+from pathlib import Path as FilePath
+
 import aiofiles
 from fastapi import FastAPI
+from fastapi.staticfiles import StaticFiles
 
 from schemas import CpuResponse, DiskResponse, NetResponse, RamResponse
 from storage import (
@@ -99,3 +102,10 @@ async def get_interface(interface: str, limit: int = 60) -> list[NetResponse]:
         for row in rows
     ]
     return result
+
+
+app.mount(
+    '/',
+    StaticFiles(directory=FilePath(__file__).parent / 'dashboard', html=True),
+    name='index',
+)
