@@ -74,33 +74,36 @@ class MonitordApp(App):
     def action_request_alerts(self) -> None:
         self.push_screen(AlertScreen())
 
-    async def on_mount(self) -> None:
-        async with httpx.AsyncClient() as client:
-            devices_response = await client.get(f'{API_BASE}/get_device_names')
-            devices = devices_response.json()
+    async def discover(self, client: httpx.AsyncClient) -> tuple[list[str], list[str]]:
+        """Fetch device and interface names and populate containers."""
+        devices_response = await client.get(f'{API_BASE}/get_device_names')
+        devices = devices_response.json()
 
-            disk_container = self.query_one('#disk-container', Vertical)
-            for device in devices:
-                await disk_container.mount(
-                    Label(f'{device.upper()}', classes='sub-label')
-                )
-                await disk_container.mount(
-                    ProgressBar(total=100, id=f'disk-{device}-bar', show_eta=False)
-                )
+        disk_container = self.query_one('#disk-container', Vertical)
+        await disk_container.query('Label.sub-label').remove()
+        await disk_container.query('ProgressBar').remove()
+        for device in devices:
+            await disk_container.mount(Label(f'{device.upper()}', classes='sub-label'))
+            await disk_container.mount(
+                ProgressBar(total=100, id=f'disk-{device}-bar', show_eta=False)
+            )
 
-            interfaces_response = await client.get(f'{API_BASE}/get_interface_names')
-            interfaces = interfaces_response.json()
+        interfaces_response = await client.get(f'{API_BASE}/get_interface_names')
+        interfaces = interfaces_response.json()
 
-            net_container = self.query_one('#net-container', Vertical)
-            for interface in interfaces:
-                await net_container.mount(Label(f'{interface}', classes='sub-label'))
-                await net_container.mount(
-                    Label(
-                        '↓ 0.0 B/s ↑ 0.0 B/s',
-                        id=f'net-{interface}-label',
-                        classes='sub-label',
-                    )
+        net_container = self.query_one('#net-container', Vertical)
+        await net_container.query('Label.sub-label').remove()
+        await net_container.query('ProgressBar').remove()
+        for interface in interfaces:
+            await net_container.mount(Label(f'{interface}', classes='sub-label'))
+            await net_container.mount(
+                Label(
+                    '↓ 0.0 KB/s ↑ 0.0 KB/s',
+                    id=f'net-{interface}-label',
+                    classes='sub-label',
                 )
+            )
+        return devices, interfaces
 
             self.poll_metrics(devices, interfaces)
 
