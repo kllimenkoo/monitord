@@ -1,0 +1,46 @@
+<html>
+  <head>
+    <title>monitord</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <button class="alerts-toggle-btn" id="alertsToggle">⚠ Alerts</button>
+
+    <div class="alerts-sidebar" id="alertsSidebar">
+      <div class="alerts-sidebar-header">
+        <h2 class="section-title">Alerts</h2>
+      </div>
+
+      <div class="alerts-sidebar-body">
+        <div class="alerts-list" id="alertsList"></div>
+      </div>
+    </div>
+
+    <div class="dashboard">
+      <div class="section">
+        <h2 class="section-title section-title-underline">CPU & Memory</h2>
+        <div class="row">
+          <div class="chart-container">
+            <canvas id="cpuChart"></canvas>
+          </div>
+          <div class="chart-container">
+            <canvas id="ramChart"></canvas>
+          </div>
+        </div>
+      </div>
+
+      <div class="section">
+        <h2 class="section-title section-title-underline">Disk</h2>
+        <div class="row" id="diskCharts"></div>
+      </div>
+
+      <div class="section">
+        <h2 class="section-title section-title-underline">Network</h2>
+        <div class="row" id="netCharts"></div>
+      </div>
+    </div>
+
+    <script src="/static/chart.js"></script>
+    <script type="module" src="script.js"></script>
+  </body>
+</html>
