@@ -47,7 +47,7 @@ class AlertScreen(ModalScreen):
 class MonitordApp(App):
     TITLE = 'monitord'
     CSS_PATH = 'tui.tcss'
-    BINDINGS = [('a', 'request_alerts', 'Alerts'), ('q', 'quit', 'quit')]
+    BINDINGS = [('a', 'request_alerts', 'alerts'), ('q', 'quit', 'quit')]
 
     def compose(self) -> ComposeResult:
         yield Header(show_clock=True)
