@@ -109,11 +109,24 @@ class MonitordApp(App):
         self.poll_metrics()
 
     @work(exclusive=True)
-    async def poll_metrics(self, devices: list[str], interfaces: list[str]) -> None:
+    async def poll_metrics(self) -> None:
         """Poll FastAPI every 2 seconds and update bars."""
+        devices: list[str] = []
+        interfaces: list[str] = []
+        was_unreachable: bool = True
+        error_notified: bool = False
+
         async with httpx.AsyncClient() as client:
             while True:
                 try:
+                    if was_unreachable:
+                        devices, interfaces = await self.discover(client=client)
+                        if error_notified:
+                            self.notify('Daemon reconnected', severity='information')
+                        was_unreachable = False
+
+                    error_notified = False
+
                     cpu_response = await client.get(f'{API_BASE}/cpu?limit=1')
                     ram_response = await client.get(f'{API_BASE}/ram?limit=1')
 
@@ -148,11 +161,14 @@ class MonitordApp(App):
                             f'#net-{interface}-label', Label
                         )
                         interface_label.update(
-                            f'↓ {self.format_bytes(receive)}   '
-                            f'↑ {self.format_bytes(transmit)}'
+                            f'↓ {receive / 1000:.1f} KB/s  ↑ {transmit / 1000:.1f} KB/s'
                         )
+
                 except httpx.RequestError:
-                    pass
+                    was_unreachable = True
+                    if not error_notified:
+                        self.notify('Cannot reach daemon', severity='error', timeout=10)
+                        error_notified = True
 
                 await asyncio.sleep(2)
 
