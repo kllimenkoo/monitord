@@ -2,7 +2,7 @@ import time
 
 import aiosqlite
 
-from models import DiskMetrics, NetMetrics, RamMetrics
+from monitord.models import DiskMetrics, NetMetrics, RamMetrics
 
 DB_PATH = '/var/lib/monitord/metrics.db'
 _db: aiosqlite.Connection | None = None
@@ -44,7 +44,7 @@ tables: tuple = (
         transmit_packet_error_count REAL,
         transmit_packet_drop_count REAL
     )
-    """.strip()
+    """.strip(),
 )
 
 

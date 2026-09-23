@@ -1,4 +1,4 @@
-from models import RamRawData, DiskRawData, NetRawData
+from monitord.models import DiskRawData, NetRawData, RamRawData
 
 
 def read_cpu_stats() -> tuple[int, ...]:
@@ -51,7 +51,7 @@ def read_net_stats() -> dict[str, NetRawData]:
             fields = line.strip().split()
             intf_name = fields[0].strip(':')
             if intf_name.startswith(('eth', 'ens', 'enp', 'wlan')):
-                key= intf_name
+                key = intf_name
                 value = NetRawData(
                     receive_bytes=int(fields[1]),
                     receive_packets=int(fields[2]),

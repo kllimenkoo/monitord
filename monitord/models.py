@@ -3,6 +3,7 @@ from typing import NamedTuple
 
 class RamRawData(NamedTuple):
     """Holds raw data read from /proc/meminfo."""
+
     mem_total: int
     mem_available: int
     swap_total: int
@@ -11,12 +12,14 @@ class RamRawData(NamedTuple):
 
 class RamMetrics(NamedTuple):
     """Holds calculated data from RAM."""
+
     mem_usage_percentage: float
     swap_usage_percentage: float
 
 
 class DiskRawData(NamedTuple):
     """Holds raw data read from /proc/diskstats."""
+
     reads_completed: int
     sectors_read: int
     writes_completed: int
@@ -26,6 +29,7 @@ class DiskRawData(NamedTuple):
 
 class DiskMetrics(NamedTuple):
     """Holds calculated data from disk read."""
+
     read_iops: float
     read_bytes_per_sec: float
     write_iops: float
@@ -35,6 +39,7 @@ class DiskMetrics(NamedTuple):
 
 class NetRawData(NamedTuple):
     """Holds raw data read from /proc/net/dev."""
+
     receive_bytes: int
     receive_packets: int
     receive_errors: int
@@ -47,6 +52,7 @@ class NetRawData(NamedTuple):
 
 class NetMetrics(NamedTuple):
     """Holds calculated data from network read."""
+
     receive_bytes_per_sec: float
     receive_packets_per_sec: float
     transmit_bytes_per_sec: float

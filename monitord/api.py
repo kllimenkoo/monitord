@@ -4,8 +4,8 @@ import aiofiles
 from fastapi import FastAPI
 from fastapi.staticfiles import StaticFiles
 
-from schemas import CpuResponse, DiskResponse, NetResponse, RamResponse
-from storage import (
+from monitord.schemas import CpuResponse, DiskResponse, NetResponse, RamResponse
+from monitord.storage import (
     get_known_devices,
     get_known_interfaces,
     read_cpu_recent,

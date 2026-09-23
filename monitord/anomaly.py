@@ -3,7 +3,7 @@ import logging
 import statistics
 from pathlib import Path
 
-from storage import (
+from monitord.storage import (
     get_known_devices,
     get_known_interfaces,
     read_cpu_recent,

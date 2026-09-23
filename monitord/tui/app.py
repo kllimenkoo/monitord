@@ -46,7 +46,7 @@ class AlertScreen(ModalScreen):
 
 class MonitordApp(App):
     TITLE = 'monitord'
-    CSS_PATH = 'tui.tcss'
+    CSS_PATH = 'app.tcss'
     BINDINGS = [('a', 'request_alerts', 'alerts'), ('q', 'quit', 'quit')]
 
     def compose(self) -> ComposeResult:
