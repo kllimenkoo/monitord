@@ -1,0 +1,49 @@
+[project]
+name = "monitord"
+version = "0.1.0"
+description = "Lightweight Linux system health monitoring daemon"
+readme = "README.md"
+authors = [
+    { name = "@kllimenkoo" }
+]
+requires-python = ">=3.12"
+dependencies = [
+  "aiofiles==25.1.0",
+  "aiosqlite==0.22.1",
+  "fastapi[standard]==0.141.1",
+  "httpx==0.28.1",
+  "textual==8.2.8",
+  "typer==0.27.2",
+  "uvicorn==0.53.0",
+]
+
+[project.scripts]
+monitord = "monitord.cli:app"
+
+[build-system]
+requires = ["setuptools>=72"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["monitord*"]
+
+[tool.setuptools.package-data]
+"monitord.dashboard" = ["*.html", "*.css", "*.js", "static/*"]
+"monitord.tui" = ["*.tcss"]
+
+[tool.pyright]
+extraPaths = ["."]
+venvPath = "."
+venv = ".venv"
+
+[tool.ruff]
+line-length = 88
+target-version = "py310"
+
+[tool.ruff.lint]
+select = ["E", "F", "I"]
+
+[tool.ruff.format]
+quote-style = "single"
+docstring-code-format = true
