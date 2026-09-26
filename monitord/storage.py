@@ -4,7 +4,7 @@ import aiosqlite
 
 from monitord.models import DiskMetrics, NetMetrics, RamMetrics
 
-DB_PATH = '/var/lib/monitord/metrics.db'
+DB_PATH = '/var/lib/monitord/monitord.db'
 _db: aiosqlite.Connection | None = None
 tables: tuple = (
     """
